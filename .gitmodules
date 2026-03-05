@@ -10,3 +10,7 @@
 	path = libc
 	url = https://github.com/bitwiseworks/libc.git
 	branch = master
+[submodule "cmake-os2"]
+	path = cmake-os2
+	url = https://github.com/bitwiseworks/cmake-os2.git
+	branch = master
