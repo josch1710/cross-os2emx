@@ -41,8 +41,8 @@ LIBCDIR := libc
 GCCDIR := gcc-os2
 EMXDIR := $(LIBCDIR)/src/emx
 EXTRASDIR := extras
-MESONDIR := meson
 CMAKEDIR := cmake-os2
+MESONCROSSFILE := meson/$(TARGETSPEC).txt
 
 LIBCZIP := libc-0_1_14-1_oc00.zip
 LIBCZIPURL := https://rpm.netlabs.org/release/00/zip/$(LIBCZIP)
@@ -90,9 +90,9 @@ all-gcc: install-binutils install-libc install-emxtools install-extras
 	$(MAKE) -C $(GCCDIR)/$(BUILDDIR) \
 	  all-gcc all-target-libgcc all-target-libstdc++-v3 all-target-libssp
 
-all-meson: $(MESONDIR)/$(TARGETSPEC).txt
+all-meson: $(MESONCROSSFILE)
 
-$(MESONDIR)/$(TARGETSPEC).txt: $(MESONDIR)/$(TARGETSPEC).txt.in
+$(MESONCROSSFILE): $(MESONCROSSFILE).in
 	$(SED) -e 's,@PREFIX@,$(PREFIX),g' -e 's,@TARGETSPEC@,$(TARGETSPEC),g' \
 	       -e 's,@TARGETCPU@,$(TARGETCPU),g' < $< > $@
 
@@ -145,8 +145,8 @@ install-gcc: all-gcc
 	           install-target-libssp
 
 install-meson: all-meson
-	$(INSTALLDATA) -D $(MESONDIR)/$(TARGETSPEC).txt \
-	  $(DESTDIR)$(SHAREDIR)/meson/cross/$(TARGETSPEC).txt
+	$(INSTALLDATA) -D $(MESONCROSSFILE) \
+	  $(DESTDIR)$(SHAREDIR)/meson/cross/$(notdir $(MESONCROSSFILE))
 
 install-cmake: all-cmake
 	$(MAKE) -C $(CMAKEDIR)/$(BUILDDIR) install DESTDIR=$(DESTDIR)
@@ -187,7 +187,7 @@ clean-gcc:
 	$(RM) -r $(GCCDIR)/$(BUILDDIR)
 
 clean-meson:
-	$(RM) $(MESONDIR)/$(TARGETSPEC).txt
+	$(RM) $(MESONCROSSFILE)
 
 clean-cmake:
 	$(RM) -r $(CMAKEDIR)/$(BUILDDIR)
