@@ -28,6 +28,7 @@ ARFLAGS := cru
 MKDIR_P := mkdir -p
 RM := rm -f
 INSTALL := install
+INSTALLDATA := $(INSTALL) -m 644
 UNZIP := unzip -u
 WGET := wget
 CP := cp
@@ -144,7 +145,7 @@ install-gcc: all-gcc
 	           install-target-libssp
 
 install-meson: all-meson
-	$(INSTALL) -m 644 -D $(MESONDIR)/$(TARGETSPEC).txt \
+	$(INSTALLDATA) -D $(MESONDIR)/$(TARGETSPEC).txt \
 	  $(DESTDIR)$(SHAREDIR)/meson/cross/$(TARGETSPEC).txt
 
 install-cmake: all-cmake
