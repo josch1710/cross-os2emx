@@ -168,7 +168,10 @@ dist:
 	  prefix=$$(echo $$prefix | $(SED) -e "s,$$prefixroot,,"); \
 	prefixfirst=/$$(echo $$prefix | cut -d '/' -f 2); \
 	$(MAKE) install DESTDIR=$$destdir PREFIXROOT=$(PREFIXROOT) && \
-	$(MV) $$destdir$$prefixroot/$$prefixfirst $$destdir$$prefixfirst && \
+	{ \
+	  test-z "$$prefixroot" || \
+	    $(MV) $$destdir$$prefixroot$$prefixfirst $$destdir$$prefixfirst; \
+	} && \
 	$(SED) -e "s/@VER@/$(VERSION)/g" $(PACKAGE).txt \
 	 > $$destdir/$(PACKAGE)-$(VERSION).txt && \
 	$(CP) README.md $$destdir && \
