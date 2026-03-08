@@ -7,9 +7,6 @@ TAR := tar
 TARFLAGS := cvzf
 TARBALL := $(PACKAGE)-$(VERSION).tar.gz
 
-# Default value for -j
-NJOBS := 1
-
 # Directory where cross-os2emx will be installed.
 # That is, $PREFIXROOT/opt/os2emx.
 PREFIXROOT := $(HOME)
@@ -70,7 +67,7 @@ all-binutils:
 	cd $(BUILDDIR); \
 	test "$(FORCE_CONFIGURE)" = "" -a -f config.status || \
 	  PREFIXROOT=$(PREFIXROOT) ../conf-os2emx-cross;
-	$(MAKE) -C $(BINUTILSDIR)/$(BUILDDIR) -j $(NJOBS)
+	$(MAKE) -C $(BINUTILSDIR)/$(BUILDDIR)
 
 all-libc: $(LIBCZIPDIR)/$(LIBCZIP)
 	$(UNZIP) $(LIBCZIPDIR)/$(LIBCZIP) -d $(LIBCZIPDIR)
@@ -80,7 +77,7 @@ $(LIBCZIPDIR)/$(LIBCZIP):
 	cd $(LIBCZIPDIR); $(WGET) $(LIBCZIPURL)
 
 all-emxtools: all-binutils
-	$(MAKE) -C $(EMXDIR) -j $(NJOBS) -f Makefile.cross
+	$(MAKE) -C $(EMXDIR) -f Makefile.cross
 
 all-gcc: install-binutils install-libc install-emxtools install-extras
 	$(MKDIR_P) $(GCCDIR)/$(BUILDDIR)
@@ -91,7 +88,7 @@ all-gcc: install-binutils install-libc install-emxtools install-extras
 	test "$(FORCE_CONFIGURE)" = "" -a -f config.status || \
 	  PREFIXROOT=$(PREFIXROOT) ../conf-os2emx-cross;
 	export PATH=$(DESTDIR)$(BINDIR):$(PATH); \
-	$(MAKE) -C $(GCCDIR)/$(BUILDDIR) -j $(NJOBS) \
+	$(MAKE) -C $(GCCDIR)/$(BUILDDIR) \
 	  all-gcc all-target-libgcc all-target-libstdc++-v3 all-target-libssp
 
 all-meson: $(MESONCROSSFILE).aout.txt $(MESONCROSSFILE).omf.txt
@@ -110,7 +107,7 @@ all-cmake: $(CMAKECROSSFILE)
 	test -f Makefile || \
 	  ../configure --prefix=$(PREFIX);
 	export PATH=$(DESTDIR)$(BINDIR):$(PATH); \
-	$(MAKE) -C $(CMAKEDIR)/$(BUILDDIR) -j $(NJOBS)
+	$(MAKE) -C $(CMAKEDIR)/$(BUILDDIR)
 
 $(CMAKECROSSFILE): $(CMAKECROSSFILE).in
 	$(SED) -e 's,@PREFIX@,$(PREFIX),g' -e 's,@TARGETSPEC@,$(TARGETSPEC),g' \
@@ -120,8 +117,7 @@ install: install-binutils install-libc install-emxtools install-extras \
          install-gcc install-meson install-cmake
 
 install-binutils: all-binutils
-	$(MAKE) -C $(BINUTILSDIR)/$(BUILDDIR) -j $(NJOBS) install \
-	  DESTDIR=$(DESTDIR)
+	$(MAKE) -C $(BINUTILSDIR)/$(BUILDDIR) install DESTDIR=$(DESTDIR)
 
 install-libc: all-libc
 	$(INSTALL) -d $(DESTDIR)$(TARGETPREFIX)
@@ -136,7 +132,7 @@ install-libc: all-libc
 	$(LN_S) ../lib $(DESTDIR)$(TARGETPREFIX)/usr/lib
 
 install-emxtools: all-emxtools
-	$(MAKE) -C $(EMXDIR) -j $(NJOBS) -f Makefile.cross install \
+	$(MAKE) -C $(EMXDIR) -f Makefile.cross install \
 	  DESTDIR=$(DESTDIR) PREFIXROOT=$(PREFIXROOT)
 
 install-extras:
@@ -153,7 +149,7 @@ install-extras:
 	done
 
 install-gcc: all-gcc
-	$(MAKE) -C $(GCCDIR)/$(BUILDDIR) -j $(NJOBS) DESTDIR=$(DESTDIR) \
+	$(MAKE) -C $(GCCDIR)/$(BUILDDIR) DESTDIR=$(DESTDIR) \
 	           install-gcc install-target-libgcc install-target-libstdc++-v3 \
 	           install-target-libssp
 
@@ -166,7 +162,7 @@ install-meson: all-meson
 install-cmake: all-cmake
 	$(INSTALLDATA) -D $(CMAKECROSSFILE) \
 	  $(DESTDIR)$(SHAREDIR)/cmake/cross/$(notdir $(CMAKECROSSFILE))
-	$(MAKE) -C $(CMAKEDIR)/$(BUILDDIR) -j $(NJOBS) install DESTDIR=$(DESTDIR)
+	$(MAKE) -C $(CMAKEDIR)/$(BUILDDIR) install DESTDIR=$(DESTDIR)
 
 dist:
 	destdir=$(CURDIR)/$(PACKAGE)-$(VERSION); \
@@ -201,7 +197,7 @@ clean-libc:
 	$(RM) -r $(LIBCZIPDIR)
 
 clean-emxtools:
-	$(MAKE) -C $(EMXDIR) -j $(NJOBS) -f Makefile.cross clean
+	$(MAKE) -C $(EMXDIR) -f Makefile.cross clean
 
 clean-gcc:
 	$(RM) -r $(GCCDIR)/$(BUILDDIR)
